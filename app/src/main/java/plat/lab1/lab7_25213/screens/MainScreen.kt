@@ -1,6 +1,5 @@
 package plat.lab1.lab7_25213.screens
 
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
@@ -48,9 +47,7 @@ fun MainScreen(
         NavHost(
             navController = bottomNavController,
             startDestination = CharactersGraph,
-            modifier = Modifier
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
+            modifier = Modifier.padding(innerPadding)
         ) {
             navigation<CharactersGraph>(startDestination = CharactersListDestination) {
                 composable<CharactersListDestination> {
