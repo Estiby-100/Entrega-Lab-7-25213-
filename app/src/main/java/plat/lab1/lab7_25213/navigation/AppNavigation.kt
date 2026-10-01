@@ -6,10 +6,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
-import plat.lab1.lab7_25213.screens.CharacterDetailScreen
-import plat.lab1.lab7_25213.screens.CharactersListScreen
 import plat.lab1.lab7_25213.screens.LoginScreen
+import plat.lab1.lab7_25213.screens.MainScreen
 
 @Composable
 fun AppNavigation(
@@ -25,28 +23,20 @@ fun AppNavigation(
         composable<LoginDestination> {
             LoginScreen(
                 onEmpezarClick = {
-                    navController.navigate(CharactersListDestination) {
+                    navController.navigate(MainDestination) {
                         popUpTo(LoginDestination) { inclusive = true }
                     }
                 }
             )
         }
 
-        composable<CharactersListDestination> {
-            CharactersListScreen(
-                onCharacterClick = { characterId ->
-                    navController.navigate(
-                        CharacterDetailDestination(characterId = characterId)
-                    )
+        composable<MainDestination> {
+            MainScreen(
+                onLogout = {
+                    navController.navigate(LoginDestination) {
+                        popUpTo(MainDestination) { inclusive = true }
+                    }
                 }
-            )
-        }
-
-        composable<CharacterDetailDestination> { backStackEntry ->
-            val destination: CharacterDetailDestination = backStackEntry.toRoute()
-            CharacterDetailScreen(
-                characterId = destination.characterId,
-                onBackClick = { navController.popBackStack() }
             )
         }
     }
