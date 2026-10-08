@@ -1,4 +1,4 @@
-package plat.lab1.lab7_25213.screens
+package plat.lab1.lab7_25213.screens.characterdetail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,24 +19,26 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import plat.lab1.lab7_25213.data.CharacterDb
+import plat.lab1.lab7_25213.data.Character
+import plat.lab1.lab7_25213.ui.components.ErrorLayout
+import plat.lab1.lab7_25213.ui.components.LoadingLayout
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterDetailScreen(
-    characterId: Int,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: CharacterDetailViewModel = viewModel()
 ) {
-    val character = remember(characterId) {
-        CharacterDb().getCharacterById(characterId)
-    }
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         modifier = modifier,
@@ -59,32 +61,55 @@ fun CharacterDetailScreen(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AsyncImage(
-                model = character.image,
-                contentDescription = character.name,
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape)
+        when {
+            state.hasError -> ErrorLayout(
+                message = "Error al obtener personaje.\nIntenta de nuevo",
+                onRetryClick = { viewModel.onEvent(CharacterDetailEvent.OnRetryClick) },
+                modifier = Modifier.padding(innerPadding)
             )
-            Text(
-                text = character.name,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
+            state.isLoading -> LoadingLayout(
+                onClick = { viewModel.onEvent(CharacterDetailEvent.OnLoadingClick) },
+                modifier = Modifier.padding(innerPadding)
             )
-
-            DetailRow(label = "Species:", value = character.species)
-            HorizontalDivider()
-            DetailRow(label = "Status:", value = character.status)
-            HorizontalDivider()
-            DetailRow(label = "Gender:", value = character.gender)
+            else -> state.data?.let { character ->
+                CharacterDetailContent(
+                    character = character,
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun CharacterDetailContent(
+    character: Character,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AsyncImage(
+            model = character.image,
+            contentDescription = character.name,
+            modifier = Modifier
+                .size(150.dp)
+                .clip(CircleShape)
+        )
+        Text(
+            text = character.name,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
+        )
+
+        DetailRow(label = "Species:", value = character.species)
+        HorizontalDivider()
+        DetailRow(label = "Status:", value = character.status)
+        HorizontalDivider()
+        DetailRow(label = "Gender:", value = character.gender)
     }
 }
 

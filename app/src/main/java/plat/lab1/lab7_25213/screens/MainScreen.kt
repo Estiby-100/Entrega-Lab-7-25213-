@@ -22,7 +22,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import plat.lab1.lab7_25213.navigation.CharacterDetailDestination
 import plat.lab1.lab7_25213.navigation.CharactersGraph
 import plat.lab1.lab7_25213.navigation.CharactersListDestination
@@ -30,6 +29,10 @@ import plat.lab1.lab7_25213.navigation.LocationDetailDestination
 import plat.lab1.lab7_25213.navigation.LocationsGraph
 import plat.lab1.lab7_25213.navigation.LocationsListDestination
 import plat.lab1.lab7_25213.navigation.ProfileDestination
+import plat.lab1.lab7_25213.screens.characterdetail.CharacterDetailScreen
+import plat.lab1.lab7_25213.screens.characterslist.CharactersListScreen
+import plat.lab1.lab7_25213.screens.locationdetail.LocationDetailScreen
+import plat.lab1.lab7_25213.screens.locationslist.LocationsListScreen
 
 @Composable
 fun MainScreen(
@@ -59,10 +62,8 @@ fun MainScreen(
                         }
                     )
                 }
-                composable<CharacterDetailDestination> { backStackEntry ->
-                    val destination: CharacterDetailDestination = backStackEntry.toRoute()
+                composable<CharacterDetailDestination> {
                     CharacterDetailScreen(
-                        characterId = destination.characterId,
                         onBackClick = { bottomNavController.popBackStack() }
                     )
                 }
@@ -78,10 +79,8 @@ fun MainScreen(
                         }
                     )
                 }
-                composable<LocationDetailDestination> { backStackEntry ->
-                    val destination: LocationDetailDestination = backStackEntry.toRoute()
+                composable<LocationDetailDestination> {
                     LocationDetailScreen(
-                        locationId = destination.locationId,
                         onBackClick = { bottomNavController.popBackStack() }
                     )
                 }

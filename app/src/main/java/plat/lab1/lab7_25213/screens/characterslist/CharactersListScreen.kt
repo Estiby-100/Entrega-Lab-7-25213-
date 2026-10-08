@@ -1,4 +1,4 @@
-package plat.lab1.lab7_25213.screens
+package plat.lab1.lab7_25213.screens.characterslist
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -17,22 +17,26 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import plat.lab1.lab7_25213.data.Character
-import plat.lab1.lab7_25213.data.CharacterDb
+import plat.lab1.lab7_25213.ui.components.ErrorLayout
+import plat.lab1.lab7_25213.ui.components.LoadingLayout
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharactersListScreen(
     onCharacterClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: CharactersListViewModel = viewModel()
 ) {
-    val characters = remember { CharacterDb().getAllCharacters() }
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         modifier = modifier,
@@ -46,13 +50,24 @@ fun CharactersListScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding)) {
-            items(characters) { character ->
-                CharacterRow(
-                    character = character,
-                    onClick = { onCharacterClick(character.id) }
-                )
-                HorizontalDivider()
+        when {
+            state.hasError -> ErrorLayout(
+                message = "Error al obtener listado de personajes.\nIntenta de nuevo",
+                onRetryClick = { viewModel.onEvent(CharactersListEvent.OnRetryClick) },
+                modifier = Modifier.padding(innerPadding)
+            )
+            state.isLoading -> LoadingLayout(
+                onClick = { viewModel.onEvent(CharactersListEvent.OnLoadingClick) },
+                modifier = Modifier.padding(innerPadding)
+            )
+            else -> LazyColumn(modifier = Modifier.padding(innerPadding)) {
+                items(state.data) { character ->
+                    CharacterRow(
+                        character = character,
+                        onClick = { onCharacterClick(character.id) }
+                    )
+                    HorizontalDivider()
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-package plat.lab1.lab7_25213.screens
+package plat.lab1.lab7_25213.screens.locationslist
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -14,19 +14,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import plat.lab1.lab7_25213.data.Location
-import plat.lab1.lab7_25213.data.LocationDb
+import plat.lab1.lab7_25213.ui.components.ErrorLayout
+import plat.lab1.lab7_25213.ui.components.LoadingLayout
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationsListScreen(
     onLocationClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: LocationsListViewModel = viewModel()
 ) {
-    val locations = remember { LocationDb().getAllLocations() }
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         modifier = modifier,
@@ -40,13 +44,24 @@ fun LocationsListScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding)) {
-            items(locations) { location ->
-                LocationRow(
-                    location = location,
-                    onClick = { onLocationClick(location.id) }
-                )
-                HorizontalDivider()
+        when {
+            state.hasError -> ErrorLayout(
+                message = "Error al obtener listado de ubicaciones.\nIntenta de nuevo",
+                onRetryClick = { viewModel.onEvent(LocationsListEvent.OnRetryClick) },
+                modifier = Modifier.padding(innerPadding)
+            )
+            state.isLoading -> LoadingLayout(
+                onClick = { viewModel.onEvent(LocationsListEvent.OnLoadingClick) },
+                modifier = Modifier.padding(innerPadding)
+            )
+            else -> LazyColumn(modifier = Modifier.padding(innerPadding)) {
+                items(state.data) { location ->
+                    LocationRow(
+                        location = location,
+                        onClick = { onLocationClick(location.id) }
+                    )
+                    HorizontalDivider()
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-package plat.lab1.lab7_25213.screens
+package plat.lab1.lab7_25213.screens.locationdetail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,22 +17,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import plat.lab1.lab7_25213.data.LocationDb
+import androidx.lifecycle.viewmodel.compose.viewModel
+import plat.lab1.lab7_25213.data.Location
+import plat.lab1.lab7_25213.ui.components.ErrorLayout
+import plat.lab1.lab7_25213.ui.components.LoadingLayout
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationDetailScreen(
-    locationId: Int,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: LocationDetailViewModel = viewModel()
 ) {
-    val location = remember(locationId) {
-        LocationDb().getLocationById(locationId)
-    }
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         modifier = modifier,
@@ -55,25 +57,48 @@ fun LocationDetailScreen(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = location.name,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 24.dp)
+        when {
+            state.hasError -> ErrorLayout(
+                message = "Error al obtener ubicación.\nIntenta de nuevo",
+                onRetryClick = { viewModel.onEvent(LocationDetailEvent.OnRetryClick) },
+                modifier = Modifier.padding(innerPadding)
             )
-
-            DetailRow(label = "ID:", value = location.id.toString())
-            HorizontalDivider()
-            DetailRow(label = "Type:", value = location.type)
-            HorizontalDivider()
-            DetailRow(label = "Dimension:", value = location.dimension)
+            state.isLoading -> LoadingLayout(
+                onClick = { viewModel.onEvent(LocationDetailEvent.OnLoadingClick) },
+                modifier = Modifier.padding(innerPadding)
+            )
+            else -> state.data?.let { location ->
+                LocationDetailContent(
+                    location = location,
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun LocationDetailContent(
+    location: Location,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = location.name,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        DetailRow(label = "ID:", value = location.id.toString())
+        HorizontalDivider()
+        DetailRow(label = "Type:", value = location.type)
+        HorizontalDivider()
+        DetailRow(label = "Dimension:", value = location.dimension)
     }
 }
 
