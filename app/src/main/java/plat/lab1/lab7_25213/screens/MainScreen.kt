@@ -33,6 +33,7 @@ import plat.lab1.lab7_25213.screens.characterdetail.CharacterDetailScreen
 import plat.lab1.lab7_25213.screens.characterslist.CharactersListScreen
 import plat.lab1.lab7_25213.screens.locationdetail.LocationDetailScreen
 import plat.lab1.lab7_25213.screens.locationslist.LocationsListScreen
+import plat.lab1.lab7_25213.screens.profile.ProfileScreen
 
 @Composable
 fun MainScreen(
@@ -87,7 +88,7 @@ fun MainScreen(
             }
 
             composable<ProfileDestination> {
-                ProfileScreen(onLogoutClick = onLogout)
+                ProfileScreen(onLogout = onLogout)
             }
         }
     }

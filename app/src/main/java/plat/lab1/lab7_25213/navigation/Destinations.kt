@@ -3,6 +3,9 @@ package plat.lab1.lab7_25213.navigation
 import kotlinx.serialization.Serializable
 
 @Serializable
+data object SplashDestination
+
+@Serializable
 data object LoginDestination
 
 @Serializable

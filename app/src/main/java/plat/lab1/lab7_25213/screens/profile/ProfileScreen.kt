@@ -1,4 +1,4 @@
-package plat.lab1.lab7_25213.screens
+package plat.lab1.lab7_25213.screens.profile
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,16 +16,27 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    onLogoutClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onLogout: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = viewModel()
 ) {
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(state.isLoggedOut) {
+        if (state.isLoggedOut) onLogout()
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -55,15 +66,11 @@ fun ProfileScreen(
                 tint = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "Esteban Sanchez",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                text = "Carne: 25213",
-                style = MaterialTheme.typography.bodyLarge,
+                text = state.name,
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
-            Button(onClick = onLogoutClick) {
+            Button(onClick = { viewModel.onEvent(ProfileEvent.OnLogoutClick) }) {
                 Text("Cerrar sesion")
             }
         }
