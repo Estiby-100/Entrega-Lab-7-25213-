@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,18 +49,23 @@ fun LoginScreen(
             onValueChange = { viewModel.onEvent(LoginEvent.OnNameChange(it)) },
             label = { Text("Nombre") },
             singleLine = true,
+            enabled = !state.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp)
         )
         Button(
             onClick = { viewModel.onEvent(LoginEvent.OnLoginClick) },
-            enabled = state.name.isNotBlank(),
+            enabled = state.name.isNotBlank() && !state.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)
         ) {
             Text("Iniciar sesión")
+        }
+
+        if (state.isLoading) {
+            CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
         }
     }
 }

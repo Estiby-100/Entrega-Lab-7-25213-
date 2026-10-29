@@ -9,9 +9,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import plat.lab1.lab7_25213.data.UserPreferences
+import plat.lab1.lab7_25213.data.local.AppDatabase
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
     private val userPreferences = UserPreferences(application)
+    private val database = AppDatabase.getInstance(application)
 
     private val _state = MutableStateFlow(ProfileState())
     val state: StateFlow<ProfileState> = _state.asStateFlow()
@@ -32,6 +34,8 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private fun logout() {
         viewModelScope.launch {
             userPreferences.clearName()
+            database.characterDao().deleteAll()
+            database.locationDao().deleteAll()
             _state.value = _state.value.copy(isLoggedOut = true)
         }
     }
