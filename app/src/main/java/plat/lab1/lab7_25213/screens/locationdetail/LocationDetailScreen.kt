@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -23,7 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import plat.lab1.lab7_25213.data.Location
+import plat.lab1.lab7_25213.data.model.Location
 import plat.lab1.lab7_25213.ui.components.ErrorLayout
 import plat.lab1.lab7_25213.ui.components.LoadingLayout
 
@@ -32,7 +34,7 @@ import plat.lab1.lab7_25213.ui.components.LoadingLayout
 fun LocationDetailScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LocationDetailViewModel = viewModel()
+    viewModel: LocationDetailViewModel = viewModel(factory = LocationDetailViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -49,10 +51,25 @@ fun LocationDetailScreen(
                         )
                     }
                 },
+                actions = {
+                    state.data?.let { location ->
+                        IconButton(onClick = { viewModel.onEvent(LocationDetailEvent.OnFavoriteClick) }) {
+                            Icon(
+                                imageVector = if (location.isFavorite) {
+                                    Icons.Filled.Favorite
+                                } else {
+                                    Icons.Filled.FavoriteBorder
+                                },
+                                contentDescription = "Favorita"
+                            )
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }

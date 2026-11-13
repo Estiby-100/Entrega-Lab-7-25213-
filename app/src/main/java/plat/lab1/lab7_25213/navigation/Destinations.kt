@@ -23,6 +23,11 @@ data class CharacterDetailDestination(
 )
 
 @Serializable
+data class CharacterFormDestination(
+    val characterId: Int = 0
+)
+
+@Serializable
 data object LocationsGraph
 
 @Serializable

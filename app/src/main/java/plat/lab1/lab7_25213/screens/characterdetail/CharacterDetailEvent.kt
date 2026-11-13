@@ -4,4 +4,7 @@ sealed interface CharacterDetailEvent {
     data object OnLoadingClick : CharacterDetailEvent
     data object OnRetryClick : CharacterDetailEvent
     data object OnFavoriteClick : CharacterDetailEvent
+    data object OnDeleteClick : CharacterDetailEvent
+    data object OnDeleteConfirm : CharacterDetailEvent
+    data object OnDeleteDismiss : CharacterDetailEvent
 }

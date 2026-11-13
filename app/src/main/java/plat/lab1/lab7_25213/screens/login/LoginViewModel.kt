@@ -1,22 +1,23 @@
 package plat.lab1.lab7_25213.screens.login
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import plat.lab1.lab7_25213.data.CharacterDb
-import plat.lab1.lab7_25213.data.LocationDb
 import plat.lab1.lab7_25213.data.UserPreferences
-import plat.lab1.lab7_25213.data.local.AppDatabase
-import plat.lab1.lab7_25213.data.local.toEntity
+import plat.lab1.lab7_25213.data.repository.CharacterRepository
+import plat.lab1.lab7_25213.data.repository.LocationRepository
+import plat.lab1.lab7_25213.di.appContainer
 
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
-    private val userPreferences = UserPreferences(application)
-    private val database = AppDatabase.getInstance(application)
+class LoginViewModel(
+    private val userPreferences: UserPreferences,
+    private val characterRepository: CharacterRepository,
+    private val locationRepository: LocationRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state.asStateFlow()
@@ -35,22 +36,27 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         if (name.isEmpty()) return
 
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
-            userPreferences.saveName(name)
-            syncData()
-            _state.value = _state.value.copy(isLoading = false, isLoggedIn = true)
+            _state.value = _state.value.copy(isLoading = true, hasError = false)
+            try {
+                characterRepository.sync()
+                locationRepository.sync()
+                userPreferences.saveName(name)
+                _state.value = _state.value.copy(isLoading = false, isLoggedIn = true)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(isLoading = false, hasError = true)
+            }
         }
     }
 
-    private suspend fun syncData() {
-        if (database.characterDao().count() > 0) return
-
-        delay(4000)
-        database.characterDao().insertAll(
-            CharacterDb().getAllCharacters().map { it.toEntity() }
-        )
-        database.locationDao().insertAll(
-            LocationDb().getAllLocations().map { it.toEntity() }
-        )
+    companion object {
+        val Factory = viewModelFactory {
+            initializer {
+                LoginViewModel(
+                    userPreferences = appContainer.userPreferences,
+                    characterRepository = appContainer.characterRepository,
+                    locationRepository = appContainer.locationRepository
+                )
+            }
+        }
     }
 }

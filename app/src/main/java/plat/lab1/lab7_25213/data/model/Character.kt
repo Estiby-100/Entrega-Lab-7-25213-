@@ -1,4 +1,4 @@
-package plat.lab1.lab7_25213.data
+package plat.lab1.lab7_25213.data.model
 
 data class Character(
     val id: Int,

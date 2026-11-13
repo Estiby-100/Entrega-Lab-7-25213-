@@ -1,6 +1,6 @@
 package plat.lab1.lab7_25213.screens.characterslist
 
-import plat.lab1.lab7_25213.data.Character
+import plat.lab1.lab7_25213.data.model.Character
 
 data class CharactersListState(
     val isLoading: Boolean = true,

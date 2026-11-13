@@ -1,6 +1,6 @@
 package plat.lab1.lab7_25213.screens.locationdetail
 
-import plat.lab1.lab7_25213.data.Location
+import plat.lab1.lab7_25213.data.model.Location
 
 data class LocationDetailState(
     val isLoading: Boolean = true,

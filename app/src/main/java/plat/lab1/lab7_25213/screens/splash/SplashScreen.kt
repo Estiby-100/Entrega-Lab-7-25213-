@@ -16,7 +16,7 @@ fun SplashScreen(
     onLoggedIn: () -> Unit,
     onNotLoggedIn: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SplashViewModel = viewModel()
+    viewModel: SplashViewModel = viewModel(factory = SplashViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsState()
 

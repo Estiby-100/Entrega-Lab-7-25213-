@@ -5,12 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -18,18 +19,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil3.compose.AsyncImage
-import plat.lab1.lab7_25213.data.Character
+import plat.lab1.lab7_25213.data.model.Character
+import plat.lab1.lab7_25213.ui.components.CharacterImage
 import plat.lab1.lab7_25213.ui.components.ErrorLayout
 import plat.lab1.lab7_25213.ui.components.LoadingLayout
 
@@ -37,10 +39,33 @@ import plat.lab1.lab7_25213.ui.components.LoadingLayout
 @Composable
 fun CharacterDetailScreen(
     onBackClick: () -> Unit,
+    onEditClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CharacterDetailViewModel = viewModel()
+    viewModel: CharacterDetailViewModel = viewModel(factory = CharacterDetailViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(state.isDeleted) {
+        if (state.isDeleted) onBackClick()
+    }
+
+    if (state.showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onEvent(CharacterDetailEvent.OnDeleteDismiss) },
+            title = { Text("Eliminar personaje") },
+            text = { Text("¿Seguro que quieres eliminar este personaje?") },
+            confirmButton = {
+                TextButton(onClick = { viewModel.onEvent(CharacterDetailEvent.OnDeleteConfirm) }) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onEvent(CharacterDetailEvent.OnDeleteDismiss) }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     Scaffold(
         modifier = modifier,
@@ -65,6 +90,18 @@ fun CharacterDetailScreen(
                                     Icons.Filled.FavoriteBorder
                                 },
                                 contentDescription = "Favorito"
+                            )
+                        }
+                        IconButton(onClick = { onEditClick(character.id) }) {
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Editar"
+                            )
+                        }
+                        IconButton(onClick = { viewModel.onEvent(CharacterDetailEvent.OnDeleteClick) }) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = "Eliminar"
                             )
                         }
                     }
@@ -109,12 +146,10 @@ private fun CharacterDetailContent(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AsyncImage(
-            model = character.image,
-            contentDescription = character.name,
-            modifier = Modifier
-                .size(150.dp)
-                .clip(CircleShape)
+        CharacterImage(
+            image = character.image,
+            name = character.name,
+            size = 150.dp
         )
         Text(
             text = character.name,

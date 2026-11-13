@@ -23,6 +23,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import plat.lab1.lab7_25213.navigation.CharacterDetailDestination
+import plat.lab1.lab7_25213.navigation.CharacterFormDestination
 import plat.lab1.lab7_25213.navigation.CharactersGraph
 import plat.lab1.lab7_25213.navigation.CharactersListDestination
 import plat.lab1.lab7_25213.navigation.LocationDetailDestination
@@ -30,6 +31,7 @@ import plat.lab1.lab7_25213.navigation.LocationsGraph
 import plat.lab1.lab7_25213.navigation.LocationsListDestination
 import plat.lab1.lab7_25213.navigation.ProfileDestination
 import plat.lab1.lab7_25213.screens.characterdetail.CharacterDetailScreen
+import plat.lab1.lab7_25213.screens.characterform.CharacterFormScreen
 import plat.lab1.lab7_25213.screens.characterslist.CharactersListScreen
 import plat.lab1.lab7_25213.screens.locationdetail.LocationDetailScreen
 import plat.lab1.lab7_25213.screens.locationslist.LocationsListScreen
@@ -60,11 +62,24 @@ fun MainScreen(
                             bottomNavController.navigate(
                                 CharacterDetailDestination(characterId = characterId)
                             )
+                        },
+                        onAddClick = {
+                            bottomNavController.navigate(CharacterFormDestination())
                         }
                     )
                 }
                 composable<CharacterDetailDestination> {
                     CharacterDetailScreen(
+                        onBackClick = { bottomNavController.popBackStack() },
+                        onEditClick = { characterId ->
+                            bottomNavController.navigate(
+                                CharacterFormDestination(characterId = characterId)
+                            )
+                        }
+                    )
+                }
+                composable<CharacterFormDestination> {
+                    CharacterFormScreen(
                         onBackClick = { bottomNavController.popBackStack() }
                     )
                 }

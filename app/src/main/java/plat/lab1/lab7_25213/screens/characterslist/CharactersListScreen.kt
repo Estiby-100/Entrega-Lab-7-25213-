@@ -5,14 +5,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,11 +26,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil3.compose.AsyncImage
-import plat.lab1.lab7_25213.data.Character
+import plat.lab1.lab7_25213.data.model.Character
+import plat.lab1.lab7_25213.ui.components.CharacterImage
 import plat.lab1.lab7_25213.ui.components.EmptyLayout
 import plat.lab1.lab7_25213.ui.components.ErrorLayout
 import plat.lab1.lab7_25213.ui.components.LoadingLayout
@@ -39,8 +38,9 @@ import plat.lab1.lab7_25213.ui.components.LoadingLayout
 @Composable
 fun CharactersListScreen(
     onCharacterClick: (Int) -> Unit,
+    onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CharactersListViewModel = viewModel()
+    viewModel: CharactersListViewModel = viewModel(factory = CharactersListViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -73,6 +73,14 @@ fun CharactersListScreen(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onAddClick) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Crear personaje"
+                )
+            }
         }
     ) { innerPadding ->
         when {
@@ -124,12 +132,10 @@ private fun CharacterRow(
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            model = character.image,
-            contentDescription = character.name,
-            modifier = Modifier
-                .size(56.dp)
-                .clip(CircleShape)
+        CharacterImage(
+            image = character.image,
+            name = character.name,
+            size = 56.dp
         )
         Column(
             modifier = Modifier

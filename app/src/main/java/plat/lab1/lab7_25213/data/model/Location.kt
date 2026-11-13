@@ -1,0 +1,9 @@
+package plat.lab1.lab7_25213.data.model
+
+data class Location(
+    val id: Int,
+    val name: String,
+    val type: String,
+    val dimension: String,
+    val isFavorite: Boolean = false
+)

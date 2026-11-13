@@ -29,7 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun ProfileScreen(
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = viewModel()
+    viewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsState()
 
